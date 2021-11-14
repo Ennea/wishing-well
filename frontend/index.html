@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wishing Well – Genshin Impact Wish History</title>
+    <meta charset="utf-8">
+    <link rel="icon" href="static/icon.png">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body x-data="app()">
+    <svg id="svg-defs">
+        <g id="settings-icon">
+            <path d="m0 1h10v1h-10v-1z"/>
+            <path d="m0 8h10v1h-10v-1z"/>
+            <path d="m0 4.5h10v1h-10v-1z"/>
+            <path d="m4 1.5a1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5 1.5 1.5 0 0 1 1.5 1.5z"/>
+            <path d="m5.5 8.5a1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5 1.5 1.5 0 0 1 1.5 1.5z"/>
+            <path d="m9 5a1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5 1.5 1.5 0 0 1 1.5 1.5z"/>
+        </g>
+    </svg>
+
+    <main>
+        <header class="flex-header">
+            <h1>Wishing Well</h1>
+            <a class="update" href="https://github.com/Ennea/wishing-well/releases/latest"
+                target="_blank" x-show="showUpdateNotification">New version available</a>
+        </header>
+        <p>
+            Enter your feedback or event URL below to update your wish history.
+            <button type="button" class="help" @click="openHelp()">?</button>
+        </p>
+        <form id="input-container" @submit="updateWishes($event)">
+            <input type="text" placeholder="Feedback or Event URL" x-model="feedbackURL">
+            <button type="submit" class="fetch" :disabled="feedbackURL.length == 0 || requestInProgress">
+                Update Wish History
+            </button>
+        </form>
+        <div id="message-output-container">
+            <div id="message-output" x-text="backendMessage" x-show="!requestInProgress" :class="backendStatus >= 400 ? 'error' : ''"></div>
+            <div id="spinner" x-show="requestInProgress">
+                <svg viewBox="0 0 10 10">
+                    <path d="M5,0C2.239,0 0,2.239 0,5C0,7.76 2.24,10 5,10C7.761,10 10,7.761 10,5L8,5C8,6.657 6.657,8 5,8C3.344,8 2,6.656 2,5C2,3.343 3.343,2 5,2L5,0Z" />
+                </svg>
+            </div>
+        </div>
+
+        <div id="uid-selector" x-show="availableUIDs.length > 1">
+            <label>UID:</label>
+            <div class="select" x-model="selectedUID" x-ref="uidSelector">
+                <div class="fake-select" x-text="selectedUID" @click="toggleUIDSelector($event)"></div>
+                <ul class="fake-select-options" x-ref="uidSelectorOptions" x-show="uidSelectorOpen">
+                    <template x-for="uid in availableUIDs">
+                        <li :class="uid == selectedUID ? 'active' : ''" x-text="uid" @click="selectUID(uid)"></li>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <div id="data-container" class="hidden" x-ref="dataContainer" x-show="dataLoaded && totalWishes > 0">
+            <section id="pity-container">
+                <h2>Current Pity</h2>
+                <div id="current-pity" class="fake-table">
+                    <div class="column">
+                        <div class="header"></div>
+                        <div>4<span class="star">★</span> Pity</div>
+                        <div>5<span class="star">★</span> Pity</div>
+                    </div>
+                    <template x-for="banner in pity">
+                        <div class="column">
+                            <div class="header" x-text="banner.name"></div>
+                            <div x-text="banner.pity4"></div>
+                            <div x-text="banner.pity5"></div>
+                        </div>
+                    </template>
+                </div>
+            </section>
+
+            <div id="statistics-container">
+                <section>
+                    <h2>Statistics</h2>
+                    <table id="item-statistics">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Total</th>
+                                <th>Percent</th>
+                                <th><abbr title="Average Pity">Pity ⌀</abbr></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>5<span class="star">★</span> Characters</td>
+                                <td x-text="statistics?.characters5?.total"></td>
+                                <td class="percent" x-text="statistics?.characters5?.percent"></td>
+                                <td x-text="statistics?.characters5?.averagePity"></td>
+                            </tr>
+                            <tr>
+                                <td>5<span class="star">★</span> Weapons</td>
+                                <td x-text="statistics?.weapons5?.total"></td>
+                                <td class="percent" x-text="statistics?.weapons5?.percent"></td>
+                                <td x-text="statistics?.weapons5?.averagePity"></td>
+                            </tr>
+                            <tr>
+                                <td>4<span class="star">★</span> Characters</td>
+                                <td x-text="statistics?.characters4?.total"></td>
+                                <td class="percent" x-text="statistics?.characters4?.percent"></td>
+                                <td x-text="statistics?.characters4?.averagePity"></td>
+                            </tr>
+                            <tr>
+                                <td>4<span class="star">★</span> Weapons</td>
+                                <td x-text="statistics?.weapons4?.total"></td>
+                                <td class="percent" x-text="statistics?.weapons4?.percent"></td>
+                                <td x-text="statistics?.weapons4?.averagePity"></td>
+                            </tr>
+                            <tr>
+                                <td>3<span class="star">★</span> Weapons</td>
+                                <td x-text="statistics?.weapons3?.total"></td>
+                                <td class="percent" x-text="statistics?.weapons3?.percent"></td>
+                                <td>–</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h2>Lowest 5<span class="star">★</span> Pity</h2>
+                    <table id="low-pity-statistics">
+                        <colgroup>
+                            <col class="low-pity-name">
+                            <col class="low-pity-amount">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Character/Weapon</th>
+                                <th>Wishes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="reward in lowPity">
+                                <tr>
+                                    <td class="overflow" x-text="reward.name"></td>
+                                    <td x-text="reward.pity"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+
+            <section id="history-container">
+                <header class="flex-header">
+                    <h2>Wish History</h2>
+                    <div><strong>Total Wishes:</strong> <span x-text="totalWishes"></span></div>
+                </header>
+                <table id="wish-history">
+                    <colgroup>
+                        <col class="reward-name">
+                        <col class="rarity">
+                        <col class="reward-type">
+                        <col class="banner-name">
+                        <col class="datetime">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Character/Weapon</th>
+                            <th>
+                                Rarity
+                                <button class="settings" @click="toggleColumnSettings($event, 'rarity')">
+                                    <svg class="settings" viewBox="0 0 10 10"><use href="#settings-icon" /></svg>
+                                </button>
+                                <ul class="settings-menu" x-ref="columnSettings_rarity" x-show="columnSettingsOpen.rarity">
+                                    <li>
+                                        <label>
+                                            <input type="checkbox" x-model="columnFilters.rarity._3">
+                                            <span class="checkbox"></span>
+                                            <span class="label star">★★★</span>
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label>
+                                            <input type="checkbox" x-model="columnFilters.rarity._4">
+                                            <span class="checkbox"></span>
+                                            <span class="label star">★★★★</span>
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label>
+                                            <input type="checkbox" x-model="columnFilters.rarity._5">
+                                            <span class="checkbox"></span>
+                                            <span class="label star">★★★★★</span>
+                                        </label>
+                                    </li>
+                                </ul>
+                            </th>
+                            <th>
+                                Type
+                                <button class="settings" @click="toggleColumnSettings($event, 'type')">
+                                    <svg class="settings" viewBox="0 0 10 10"><use href="#settings-icon" /></svg>
+                                </button>
+                                <ul class="settings-menu" x-ref="columnSettings_type" x-show="columnSettingsOpen.type">
+                                    <li>
+                                        <label>
+                                            <input type="checkbox" x-model="columnFilters.type.Character">
+                                            <span class="checkbox"></span>
+                                            <span class="label">Character</span>
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label>
+                                            <input type="checkbox" x-model="columnFilters.type.Weapon">
+                                            <span class="checkbox"></span>
+                                            <span class="label">Weapon</span>
+                                        </label>
+                                    </li>
+                                </ul>
+                            </th>
+                            <th>
+                                Banner
+                                <button class="settings" @click="toggleColumnSettings($event, 'bannerType')">
+                                    <svg class="settings" viewBox="0 0 10 10"><use href="#settings-icon" /></svg>
+                                </button>
+                                <ul class="settings-menu" x-ref="columnSettings_bannerType" x-show="columnSettingsOpen.bannerType">
+                                    <template x-for="bannerType in bannerTypesList">
+                                        <li>
+                                            <label>
+                                                <input type="checkbox" checked @change="bannerTypeFilterChange($event, bannerType.key)">
+                                                <span class="checkbox"></span>
+                                                <span class="label" x-text="bannerType.name"></span>
+                                            </label>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </th>
+                            <th>Date & Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="wish in pagedWishHistory">
+                            <tr :class="wish.rarity == 5 ? 'rarity-5' : wish.rarity == 4 ? 'rarity-4' : ''">
+                                <td class="overflow"><div x-text="wish.name"></div></td>
+                                <td :class="wish.rarityText.length > 1 ? 'star' : ''"><div x-text="wish.rarityText"></div></td>
+                                <td><div x-text="wish.type"></div></td>
+                                <td><div x-text="wish.bannerTypeName"></div></td>
+                                <td><div x-text="wish.time"></div></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <div id="history-controls">
+                    <button type="button" class="history-button" :disabled="wishHistoryPage == 0" @click="firstPage()">First Page</button>
+                    <button type="button" class="history-button" :disabled="wishHistoryPage == 0" @click="previousPage()">Previous</button>
+                    <div class="page-display">Page <span x-text="wishHistoryPage + 1"></span></div>
+                    <button type="button" class="history-button" :disabled="wishHistoryPage == wishHistoryLastPage" @click="nextPage()">Next</button>
+                    <button type="button" class="history-button" :disabled="wishHistoryPage == wishHistoryLastPage" @click="lastPage()">Last Page</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <a href="https://github.com/Ennea/wishing-well" target="_blank">Wishing Well</a> v<span x-text="VERSION"></span> | Wishing Well is not affiliated with miHoYo. Genshin Impact is a trademark of miHoYo.
+    </footer>
+
+    <aside id="modal">
+        <div>
+            <button type="button" class="close" @click="closeHelp()">&times;</button>
+            <h3>Getting your feedback or event URL</h3>
+
+            <h4>PC</h4>
+            <ol>
+                <li>Open the "Feedback" entry from the Paimon menu.</li>
+                <li>Copy the URL of the page that has opened in your browser.</li>
+            </ol>
+
+            <h4>Console</h4>
+            <ol>
+                <li>Inside the game, during an event, open the event mail that contains a QR code.</li>
+                <li>Scan the QR code with your phone and copy the URL.</li>
+            </ol>
+
+            <h4>Android</h4>
+            <ol>
+                <li>Open the "Feedback" entry from the Paimon menu.</li>
+                <li>Once the feedback page has loaded, disable your Wi-Fi and mobile data, then refresh the page.</li>
+                <li>Copy the URL from the resulting error message.</li>
+            </ol>
+
+            <h4>iOS</h4>
+            <ol>
+                <li>Open the "Feedback" entry from the Paimon menu.</li>
+                <li>On the feedback page, click "In-game issue", then "Co-Op Mode".</li>
+                <li>Click on the link at the bottom of the reply.</li>
+                <li>Copy the URL of the page that has opened in your browser.</li>
+            </ol>
+        </div>
+    </aside>
+
+    <script src="static/script.js"></script>
+    <script src="static/alpine3.5.0.min.js"></script>
+</body>
+</html>
