@@ -190,19 +190,12 @@ document.addEventListener('alpine:init', () => {
                 })
             }).then((response) => {
                 return new Promise((resolve, reject) => {
-                    if (response.status >= 500) {
+                    response.json().then((json) => {
                         resolve({
                             status: response.status,
-                            data: null
+                            data: json
                         });
-                    } else {
-                        response.json().then((json) => {
-                            resolve({
-                                status: response.status,
-                                data: json
-                            });
-                        });
-                    }
+                    });
                 });
             }, (error) => {
                 this.backendStatus = 400;

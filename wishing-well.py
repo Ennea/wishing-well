@@ -3,6 +3,7 @@
 # nuitka-project: --include-data-dir=./frontend=frontend
 # nuitka-project-if: {OS} in ('Windows'):
 #     nuitka-project: --mingw64
+#     nuitka-project: --plugin-enable=tk-inter
 #     nuitka-project: --windows-disable-console
 #     nuitka-project: --windows-icon-from-ico=./icon.ico
 #     nuitka-project: --windows-company-name=-
