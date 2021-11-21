@@ -48,7 +48,7 @@ I wanted to create a tool for the backup and analyzation of your wish history th
 
 ### Where are my wishes stored?
 
-On your computer! If you're on Windows, your wish history is stored in `%APPDATA\wishing-well`, while on Linux or macOS, the history will be stored in `~/.config/wishing-well`.
+On your computer! If you're on Windows, your wish history is stored in `%APPDATA\wishing-well`. On Linux and macOS, the history will be stored in `$XDG_DATA_HOME/wishing-well` if it's set, or in `~/.local/share/wishing-well` on Linux and `~/Library/Application Support/wishing-well` on macOS.
 
 ### Can I use this with a Chinese account?
 

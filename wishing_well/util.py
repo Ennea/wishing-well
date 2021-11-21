@@ -14,13 +14,21 @@ def get_data_path():
     if sys.platform == 'win32':
         path = Path(os.environ['APPDATA']) / 'wishing-well'
     elif sys.platform == 'linux':
-        path = Path('~/.config/wishing-well').expanduser()
+        if 'XDG_DATA_HOME' in os.environ:
+            path = Path(os.environ['XDG_DATA_HOME']) / 'wishing-well'
+        else:
+            path = Path('~/.local/share/wishing-well').expanduser()
+    elif sys.platform == 'darwin':
+        if 'XDG_DATA_HOME' in os.environ:
+            path = Path(os.environ['XDG_DATA_HOME']) / 'wishing-well'
+        else:
+            path = Path('~/Library/Application Support/wishing-well').expanduser()
     else:
         show_error('Wishing Well is only designed to run on Windows or Linux based systems.')
 
     # create dir if it does not yet exist
     if not path.exists():
-        path.mkdir()
+        path.mkdir(parents=True)
 
     # path exists, but is a file
     if not path.is_dir():
