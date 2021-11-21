@@ -8,7 +8,7 @@
 #     nuitka-project: --windows-icon-from-ico=./icon.ico
 #     nuitka-project: --windows-company-name=-
 #     nuitka-project: --windows-product-name=Wishing Well
-#     nuitka-project: --windows-product-version=0.1
+#     nuitka-project: --windows-product-version=1.0
 
 import logging
 import bottle
