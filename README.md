@@ -30,6 +30,10 @@ Just download the installer (or the installer-less archive, if you prefer), run 
 
 Wishing Well will open in your browser, simply because it's a lot easier (and prettier!) to present the data like that. Here's how that works: when you start Wishing Well, it will run a local web server (only accessible from your own PC) and automatically point your browser to it. The web server will keep running as long as you have at least one tab of Wishing Well open. When you close all the tabs, the web server Wishing Well has started will shut down soon after.
 
+### Can I bookmark the page Wishing Well opens in my browser?
+
+No, that will not work. The web server that Wishing Well starts whenever you run it will stop running after all tabs have been closed. It's not always running in the background. So when you want to open Wishing Well, you'll always have to do so by running the program.
+
 ### How do I use Wishing Well for multiple accounts?
 
 Just use Wishing Well like you normally would, but using the feedback or event URL for your other accounts as well. The wish history data includes your UID, and Wishing Well will automatically store the wish history for multiple accounts separately. When it has saved data for multiple UIDs, it will allow you to select the UID you want to view the statistics and wish history for.
