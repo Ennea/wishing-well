@@ -42,6 +42,10 @@ The same way the game does! It just automates it all and then stores the history
 
 I wanted to create a tool for the backup and analyzation of your wish history that is not a website, but runs locally instead. That way, you don't need to share your authentication token with any third parties, and you have complete control over any data that is being generated and stored. Also, it was a lot of fun to make :)
 
+### Where are my wishes stored?
+
+On your computer! If you're on Windows, your wish history is stored in `%APPDATA\wishing-well`, while on Linux or macOS, the history will be stored in `~/.config/wishing-well`.
+
 ### Can I use this with a Chinese account?
 
 Chinese accounts are currently not supported. If there's enough interest for this, I will add support for Chinese accounts as well.
