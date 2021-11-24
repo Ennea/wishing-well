@@ -1,6 +1,6 @@
 document.addEventListener('alpine:init', () => {
     Alpine.data('app', () => ({
-        VERSION: '1.0',
+        VERSION: '1.0.1',
 
         // raw data from the backend
         bannerTypes: {},
@@ -13,7 +13,6 @@ document.addEventListener('alpine:init', () => {
         // frontend and processed data
         dataLoaded: false,
         showUpdateNotification: false,
-        feedbackURL: '',
         backendStatus: 0,
         backendMessage: '',
         requestInProgress: false,
@@ -164,14 +163,6 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
-        openHelp() {
-            document.body.classList.add('modal');
-        },
-
-        closeHelp() {
-            document.body.classList.remove('modal');
-        },
-
         updateWishes(event) {
             event.preventDefault();
 
@@ -184,10 +175,7 @@ document.addEventListener('alpine:init', () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    url: this.feedbackURL
-                })
+                }
             }).then((response) => {
                 return new Promise((resolve, reject) => {
                     response.json().then((json) => {

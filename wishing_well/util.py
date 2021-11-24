@@ -9,6 +9,8 @@ from tkinter import ttk
 from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
 
+from .exceptions import LogNotFoundError
+
 
 def get_data_path():
     if sys.platform == 'win32':
@@ -33,6 +35,16 @@ def get_data_path():
     # path exists, but is a file
     if not path.is_dir():
         show_error(f'{path} already exists, but is a file.')
+
+    return path
+
+def get_log_path():
+    if sys.platform != 'win32':
+        raise LogNotFoundError('Cannot find the log file on non-Windows systems.')
+
+    path = Path(os.environ['USERPROFILE']) / 'AppData/LocalLow/miHoYo/Genshin Impact/output_log.txt'
+    if not path.exists():
+        return None
 
     return path
 

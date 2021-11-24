@@ -15,3 +15,6 @@ class NoWishHistoryError(Exception):
 
 class MissingAuthTokenError(Exception):
     pass
+
+class LogNotFoundError(Exception):
+    pass

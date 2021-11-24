@@ -8,7 +8,7 @@ from time import time
 
 from .client import Client
 from .enums import ItemType
-from .exceptions import AuthTokenExtractionError, MissingAuthTokenError, EndpointError, RequestError
+from .exceptions import AuthTokenExtractionError, MissingAuthTokenError, EndpointError, RequestError, LogNotFoundError
 
 
 class Server:
@@ -173,10 +173,9 @@ class Server:
         }
 
     def _update_wish_history(self):
-        body = self._bottle.request.json
         try:
-            region, auth_token = Client.extract_region_and_auth_token(body['url'])
-        except AuthTokenExtractionError as e:
+            region, auth_token = Client.extract_region_and_auth_token_from_file()
+        except (AuthTokenExtractionError, LogNotFoundError) as e:
             self._bottle.response.status = 400
             return {
                 'message': str(e)

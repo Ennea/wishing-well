@@ -24,7 +24,7 @@ Unlike other tools with a similar function, Wishing Well runs on your own PC. No
 
 ### How do I use this?
 
-Just download the installer (or the installer-less archive, if you prefer), run it and enter your feedback or event URL (instructions inside). That's it!
+Just download the installer (or the installer-less archive, if you prefer), run it and follow the instructions. It's often just the click of a button! Sadly, with the changes introduced with Genshin Impact version 2.3, Wishing Well currently only works on the same PC you're playing Genshin Impact on.
 
 ### Why does it open a website? How does that work?
 
@@ -36,7 +36,7 @@ No, that will not work. The web server that Wishing Well starts whenever you run
 
 ### How do I use Wishing Well for multiple accounts?
 
-Just use Wishing Well like you normally would, but using the feedback or event URL for your other accounts as well. The wish history data includes your UID, and Wishing Well will automatically store the wish history for multiple accounts separately. When it has saved data for multiple UIDs, it will allow you to select the UID you want to view the statistics and wish history for.
+Just use Wishing Well like you normally would, but logging into your other accounts for each use as well. The wish history data includes your UID, and Wishing Well will automatically store the wish history for multiple accounts separately. When it has saved data for multiple UIDs, it will allow you to select the UID you want to view the statistics and wish history for.
 
 ### How does Wishing Well get my wish history?
 
@@ -52,11 +52,11 @@ On your computer! If you're on Windows, your wish history is stored in `%APPDATA
 
 ### Can I use this with a Chinese account?
 
-Chinese accounts are currently not supported. If there's enough interest for this, I will add support for Chinese accounts as well.
+Chinese accounts are not currently supported. If there's enough interest for this, I will add support for Chinese accounts as well.
 
 ### Are platforms besides Windows supported?
 
-Wishing Well is written in Python and should be able to run on all major desktop operating systems. If you're on Linux or macOS, all you need is Python (at least version 3.9). Just check out the repository and run `python3 wishing-well.py`. (Note: Tkinter is required for some error messages. Some Linux distributions do not bundle Tkinter with the rest of Python's standard library. For example, on Debian, the required package is called `python3-tk`.)
+Wishing Well is written in Python and should be able to run on all major desktop operating systems. However, with the limitations introduced in Genshin Impact version 2.3, Wishing Well needs to run on the same PC you're playing Genshin Impact on. As such, running Wishing Well on Linux or macOS probably does not make much sense. If you still want to do it, all you need is Python (at least version 3.9). Just check out the repository and run `python3 wishing-well.py`. (Note: Tkinter is required for some error messages. Some Linux distributions do not bundle Tkinter with the rest of Python's standard library. For example, on Debian, the required package is called `python3-tk`.)
 
 ## Thank you
 

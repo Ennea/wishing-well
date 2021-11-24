@@ -25,12 +25,10 @@
                 target="_blank" x-show="showUpdateNotification">New version available</a>
         </header>
         <p>
-            Enter your feedback or event URL below to update your wish history.
-            <button type="button" class="help" @click="openHelp()">?</button>
+            To update your wish history, click the button below. This process requires you to have opened the in-game wish history the last time you've played Genshin Impact. If you have not done so, or you are not sure, you can start the game and open the in-game wish history now. This requires Wishing Well to run on the same PC you're playing Genshin Impact on.
         </p>
         <form id="input-container" @submit="updateWishes($event)">
-            <input type="text" placeholder="Feedback or Event URL" x-model="feedbackURL">
-            <button type="submit" class="fetch" :disabled="feedbackURL.length == 0 || requestInProgress">
+            <button type="submit" class="fetch" :disabled="requestInProgress">
                 Update Wish History
             </button>
         </form>
@@ -259,40 +257,6 @@
     <footer>
         <a href="https://github.com/Ennea/wishing-well" target="_blank">Wishing Well</a> v<span x-text="VERSION"></span> | Wishing Well is not affiliated with miHoYo. Genshin Impact is a trademark of miHoYo.
     </footer>
-
-    <aside id="modal">
-        <div>
-            <button type="button" class="close" @click="closeHelp()">&times;</button>
-            <h3>Getting your feedback or event URL</h3>
-
-            <h4>PC</h4>
-            <ol>
-                <li>Open the "Feedback" entry from the Paimon menu.</li>
-                <li>Copy the URL of the page that has opened in your browser.</li>
-            </ol>
-
-            <h4>Console</h4>
-            <ol>
-                <li>Inside the game, during an event, open the event mail that contains a QR code.</li>
-                <li>Scan the QR code with your phone and copy the URL.</li>
-            </ol>
-
-            <h4>Android</h4>
-            <ol>
-                <li>Open the "Feedback" entry from the Paimon menu.</li>
-                <li>Once the feedback page has loaded, disable your Wi-Fi and mobile data, then refresh the page.</li>
-                <li>Copy the URL from the resulting error message.</li>
-            </ol>
-
-            <h4>iOS</h4>
-            <ol>
-                <li>Open the "Feedback" entry from the Paimon menu.</li>
-                <li>On the feedback page, click "In-game issue", then "Co-Op Mode".</li>
-                <li>Click on the link at the bottom of the reply.</li>
-                <li>Copy the URL of the page that has opened in your browser.</li>
-            </ol>
-        </div>
-    </aside>
 
     <script src="static/script.js"></script>
     <script src="static/alpine3.5.0.min.js"></script>

@@ -67,28 +67,16 @@ h4 {
     margin-bottom: 0.75em;
 }
 
+p {
+    line-height: 1.5;
+}
+
 p:last-child {
     margin-bottom: 0;
 }
 
 .hidden {
     display: none;
-}
-
-button.help {
-    width: 1.5em;
-    height: 1.5em;
-    margin-left: 5px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    line-height: 1;
-    color: inherit;
-    text-shadow: inherit;
-    border: 2px solid white;
-    border-radius: 50%;
-    background: none;
-    box-shadow: var(--box-shadow-with-inset);
-    cursor: pointer;
 }
 
 button.fetch, a.update {
@@ -101,6 +89,10 @@ button.fetch, a.update {
     box-shadow: var(--box-shadow);
     cursor: pointer;
     transition: background-color 100ms ease-out;
+}
+
+button.fetch {
+    padding: 5px 50px;
 }
 
 a.update {
@@ -601,24 +593,7 @@ button.history-button:not(:disabled):focus-visible {
 /* containers */
 #input-container {
     display: flex;
-    justify-content: space-between;
-}
-
-#input-container > input {
-    flex-grow: 1;
-    margin-right: 20px;
-    padding: 5px 15px;
-    font-size: 1rem;
-    color: inherit;
-    border: 3px solid white;
-    border-radius: 50px;
-    background-color: rgba(0, 0, 0, 0.5);
-    box-shadow: var(--box-shadow-with-inset);
-}
-
-#input-container > input:focus-visible {
-    outline: none;
-    border-color: var(--yellow);
+    justify-content: center;
 }
 
 #statistics-container {
@@ -639,68 +614,4 @@ button.history-button:not(:disabled):focus-visible {
 
 #data-container > * + * {
     margin-top: 50px;
-}
-
-/* modal */
-#modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    padding: 30px 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    overflow-y: auto;
-}
-
-#modal *::selection {
-    background-color: rgba(0, 0, 0, 0.25);
-}
-
-body.modal {
-    overflow: hidden;
-}
-
-body.modal > #modal {
-    display: block;
-}
-
-#modal > div {
-    position: relative;
-    width: 90vw;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 30px;
-    color: black;
-    text-shadow: none;
-    border-radius: 25px;
-    background-color: white;
-}
-
-#modal ol {
-    margin: 0;
-    padding-left: 1em;
-}
-
-#modal ol > li {
-    padding-left: 5px;
-    line-height: 1.5;
-}
-
-#modal ol + h4 {
-    margin-top: 1.5em;
-}
-
-#modal button.close {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 1em;
-    height: 1em;
-    font-size: 2rem;
-    line-height: 1;
-    border: none;
-    background: none;
-    cursor: pointer;
 }
