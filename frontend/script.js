@@ -1,6 +1,6 @@
 document.addEventListener('alpine:init', () => {
     Alpine.data('app', () => ({
-        VERSION: '1.0.1',
+        VERSION: '1.0.2',
 
         // raw data from the backend
         bannerTypes: {},
