@@ -154,8 +154,9 @@ class Server:
                 del pity['100']  # remove novice wishes
             pity = [ banner for _, banner in pity.items() ]
 
-            # sort low pity
+            # sort and clamp low pity
             low_pity.sort(key=lambda reward: reward['pity'])
+            data['lowPity'] = low_pity[:5]
 
             # re-sort the history now that all banner types are
             # merged, then reverse it for display in the frontend
