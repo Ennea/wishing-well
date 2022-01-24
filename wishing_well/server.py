@@ -1,4 +1,5 @@
 import logging
+import signal
 import sys
 import webbrowser
 from copy import deepcopy
@@ -21,6 +22,7 @@ class Server:
         self._app = self._bottle.Bottle()
 
         self._app.route('/', callback=self._index)
+        self._app.route('/static/<filename>.js', callback=self._static_files_javascript)
         self._app.route('/static/<filename>', callback=self._static_files)
         self._app.route('/wishing-well', callback=self._identify)
         self._app.route('/data', callback=self._get_data)
@@ -32,6 +34,9 @@ class Server:
         self._shutdown_timer = Timer(self._heartbeat_timeout, self._shutdown)
         self._shutdown_timer.start()
 
+        # try to handle sigint
+        signal.signal(signal.SIGINT, self._handle_sigint)
+
         webbrowser.open(f'http://localhost:{port}')
         self._bottle.run(self._app, server=self._server)
 
@@ -39,11 +44,18 @@ class Server:
         logging.debug('No longer receiving heartbeats. Shutting down.')
         self._server.srv.shutdown()
 
+    def _handle_sigint(self, *args):
+        self._shutdown_timer.cancel()
+        Timer(0.1, self._shutdown).start()
+
     def _index(self):
         return self._bottle.static_file('index.html', root=Path(sys.path[0]) / 'frontend', headers=self._static_headers)
 
     def _static_files(self, filename):
         return self._bottle.static_file(filename, root=Path(sys.path[0]) / 'frontend', headers=self._static_headers)
+
+    def _static_files_javascript(self, filename):
+        return self._bottle.static_file(filename + '.js', root=Path(sys.path[0]) / 'frontend', headers=self._static_headers, mimetype='text/javascript')
 
     # a simple 204 on a fixed endpoint name;
     # used to identify ourselves to check if there's already an
@@ -59,6 +71,49 @@ class Server:
         self._shutdown_timer.cancel()
         self._shutdown_timer = Timer(self._heartbeat_timeout, self._shutdown)
         self._shutdown_timer.start()
+
+    # calculate stats and pity. also returns pity the
+    # given wish/reward was obtained at, if applicable
+    def _calculate_stats_and_pity(self, wish, banner_type, stats, pity, low_pity):
+        current_pity = None
+
+        # 5 star
+        if wish['rarity'] == 5:
+            current_pity = pity[banner_type]['pity5'] + 1
+            if wish['type'] is ItemType.CHARACTER:
+                stats['characters5']['total'] += 1
+                stats['characters5']['averagePity'].append(current_pity)
+            else:
+                stats['weapons5']['total'] += 1
+                stats['weapons5']['averagePity'].append(current_pity)
+
+            low_pity.append({
+                'name': wish['name'],
+                'pity': current_pity
+            })
+            pity[banner_type]['pity5'] = 0
+        else:
+            pity[banner_type]['pity5'] += 1
+
+        # 4 star
+        if wish['rarity'] == 4:
+            current_pity = pity[banner_type]['pity4'] + 1
+            if wish['type'] is ItemType.CHARACTER:
+                stats['characters4']['total'] += 1
+                stats['characters4']['averagePity'].append(current_pity)
+            else:
+                stats['weapons4']['total'] += 1
+                stats['weapons4']['averagePity'].append(current_pity)
+
+            pity[banner_type]['pity4'] = 0
+        else:
+            pity[banner_type]['pity4'] += 1
+
+        # 3 star
+        if wish['rarity'] == 3:
+            stats['weapons3']['total'] += 1
+
+        return current_pity
 
     # return all data required by the frontend
     def _get_data(self):
@@ -98,40 +153,7 @@ class Server:
 
             for banner_type in self._client.get_banner_types_for_uid(uid):
                 for wish in self._client.get_wish_history(uid, banner_type):
-                    # stat and pity calculation
-                    # 5 star
-                    if wish['rarity'] == 5:
-                        if wish['type'] is ItemType.CHARACTER:
-                            stats['characters5']['total'] += 1
-                            stats['characters5']['averagePity'].append(pity[banner_type]['pity5'] + 1)
-                        else:
-                            stats['weapons5']['total'] += 1
-                            stats['weapons5']['averagePity'].append(pity[banner_type]['pity5'] + 1)
-
-                        low_pity.append({
-                            'name': wish['name'],
-                            'pity': pity[banner_type]['pity5'] + 1
-                        })
-                        pity[banner_type]['pity5'] = 0
-                    else:
-                        pity[banner_type]['pity5'] += 1
-
-                    # 4 star
-                    if wish['rarity'] == 4:
-                        if wish['type'] is ItemType.CHARACTER:
-                            stats['characters4']['total'] += 1
-                            stats['characters4']['averagePity'].append(pity[banner_type]['pity4'] + 1)
-                        else:
-                            stats['weapons4']['total'] += 1
-                            stats['weapons4']['averagePity'].append(pity[banner_type]['pity4'] + 1)
-
-                        pity[banner_type]['pity4'] = 0
-                    else:
-                        pity[banner_type]['pity4'] += 1
-
-                    # 3 star
-                    if wish['rarity'] == 3:
-                        stats['weapons3']['total'] += 1
+                    current_pity = self._calculate_stats_and_pity(wish, banner_type, stats, pity, low_pity)
 
                     # insert wish copy into frontend-ready history
                     wish_copy = wish.copy()
@@ -139,6 +161,7 @@ class Server:
                     wish_copy['bannerType'] = banner_type
                     wish_copy['bannerTypeName'] = banner_types[banner_type]
                     wish_copy['rarityText'] = '★' * wish_copy['rarity']
+                    wish_copy['pity'] = current_pity
                     wish_history.append(wish_copy)
 
             # calculate average pity
@@ -174,8 +197,13 @@ class Server:
         }
 
     def _update_wish_history(self):
+        body = self._bottle.request.json
+
         try:
-            region, auth_token = Client.extract_region_and_auth_token_from_file()
+            if 'url' in body:
+                region, auth_token = Client.extract_region_and_auth_token(body['url'])
+            else:
+                region, auth_token = Client.extract_region_and_auth_token_from_file()
         except (AuthTokenExtractionError, LogNotFoundError) as e:
             self._bottle.response.status = 400
             return {

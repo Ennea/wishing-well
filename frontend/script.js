@@ -16,9 +16,11 @@ document.addEventListener('alpine:init', () => {
         backendStatus: 0,
         backendMessage: '',
         requestInProgress: false,
+        wishHistoryURL: '',
 
         uidData: {},
         selectedUID: null,
+        selectedPlatform: null,
         bannerTypesList: [],
         wishHistoryPageSize: 10,
         wishHistoryLastPage: 0,
@@ -118,6 +120,14 @@ document.addEventListener('alpine:init', () => {
             return version;
         },
 
+        openModal() {
+            document.body.classList.add('modal');
+        },
+
+        closeModal() {
+            document.body.classList.remove('modal');
+        },
+
         loadData() {
             fetch('/data', {
                 cache: 'no-store'
@@ -163,8 +173,15 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
-        updateWishes(event) {
-            event.preventDefault();
+        updateWishes(withURL, event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            const body = {};
+            if (withURL) {
+                body.url = this.wishHistoryURL;
+            }
 
             // reset message and status, show loading animation
             this.backendStatus = 0;
@@ -175,7 +192,8 @@ document.addEventListener('alpine:init', () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify(body)
             }).then((response) => {
                 return new Promise((resolve, reject) => {
                     response.json().then((json) => {

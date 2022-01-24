@@ -10,7 +10,7 @@ Python Standard Library.
 Homepage and documentation: http://bottlepy.org/
 
 Copyright (c) 2009-2018, Marcel Hellkamp.
-License: MIT (see LICENSE for details)
+License: MIT (see 3rd-party-licenses/LICENSE_bottlepy for details)
 """
 
 from __future__ import print_function

@@ -29,6 +29,9 @@ Section "Wishing Well"
   SectionIn RO
   SetOutPath $INSTDIR
   
+  ; Kill Wishing Well if it's already running
+  nsExec::Exec 'taskkill /f /im wishing-well.exe'
+
   ; Files to install
   File /r "wishing-well.dist\frontend*.*"
   File "wishing-well.dist\icon.png"

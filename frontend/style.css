@@ -42,6 +42,10 @@ body > main {
     padding-top: 30px;
 }
 
+body > main > header + .center {
+    margin-bottom: 50px;
+}
+
 body > footer {
     margin: 50px 0 10px;
     font-size: 0.7rem;
@@ -75,24 +79,25 @@ p:last-child {
     margin-bottom: 0;
 }
 
-.hidden {
+.hidden, #svg-defs {
     display: none;
 }
 
-button.fetch, a.update {
-    padding: 5px 15px;
-    font-size: 1rem;
-    color: black;
-    border: 3px solid transparent;
-    border-radius: 50px;
-    background-color: white;
-    box-shadow: var(--box-shadow);
-    cursor: pointer;
-    transition: background-color 100ms ease-out;
+.center {
+    text-align: center;
 }
 
-button.fetch {
+/* buttons */
+button.button, a.update {
     padding: 5px 50px;
+    font-size: 1rem;
+    color: var(--bg, black);
+    border: 3px solid transparent;
+    border-radius: 50px;
+    background-color: var(--fg, white);
+    box-shadow: var(--box-shadow);
+    cursor: pointer;
+    transition: color 100ms ease-out, background-color 100ms ease-out;
 }
 
 a.update {
@@ -103,16 +108,16 @@ a.update {
     background-color: var(--yellow-dark);
 }
 
-button.fetch:disabled {
+button.button:disabled {
     cursor: initial;
     opacity: 0.5;
 }
 
-button.fetch:not(:disabled):hover, a.update:hover {
+button.button:not(:disabled):hover, a.update:hover {
     background-color: var(--yellow);
 }
 
-button.fetch:not(:disabled):active {
+button.button:not(:disabled):active {
     background-color: var(--yellow-dark);
 }
 
@@ -120,7 +125,7 @@ a.update:active {
     background-color: white;
 }
 
-button.fetch:not(:disabled):focus-visible {
+button.button:not(:disabled):focus-visible {
     outline: none;
     border-color: var(--yellow-dark);
 }
@@ -130,8 +135,12 @@ a.update:focus-visible {
     border-color: white;
 }
 
-#svg-defs {
-    display: none;
+#modal button.button {
+    box-shadow: none;
+}
+
+#modal button.button:not(:disabled):hover, #modal button.button:not(:disabled):active {
+    --bg: black;
 }
 
 /* output for messages from the backend */
@@ -139,17 +148,16 @@ a.update:focus-visible {
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    height: 50px;
-    margin: 20px 0 40px;
+    margin: 20px 0 0;
 }
 
 #message-output {
-    padding: 5px 15px;
-    border-radius: 50px;
+    padding: 0 50px;
+    text-align: center;
 }
 
 #message-output.error {
-    background-color: #c94c43;
+    color: #df2d32;
 }
 
 /* loading spinner */
@@ -165,7 +173,7 @@ a.update:focus-visible {
 }
 
 #spinner > svg > path {
-    fill: white;
+    fill: black;
 }
 
 @keyframes spinner {
@@ -290,8 +298,6 @@ ul.settings-menu label {
 
 ul.settings-menu label > input {
     display: none;
-    /*flex-grow: 0;
-    margin: 0;*/
 }
 
 ul.settings-menu label > span.checkbox {
@@ -468,10 +474,11 @@ col.low-pity-amount { width: 100px; }
 }
 
 /* wish history */
-col.reward-name { width: auto; max-width: calc(100% - 670px);  /* 100% - all other column widths */ }
+col.reward-name { width: auto; max-width: calc(100% - 710px);  /* 100% - all other column widths */ }
 col.rarity { width: 120px; }
 col.reward-type { width: 120px; }
 col.banner-name { width: 220px; }
+col.pity { width: 40px; }
 col.datetime { width: 210px; }
 
 #wish-history {
@@ -529,9 +536,11 @@ col.datetime { width: 210px; }
 #wish-history td:nth-child(2),
 #wish-history td:nth-child(3),
 #wish-history td:nth-child(4),
+#wish-history td:nth-child(5),
 #wish-history th:nth-child(2),
 #wish-history th:nth-child(3),
-#wish-history th:nth-child(4) {
+#wish-history th:nth-child(4),
+#wish-history th:nth-child(5) {
     text-align: center;
 }
 
@@ -591,9 +600,25 @@ button.history-button:not(:disabled):focus-visible {
 }
 
 /* containers */
-#input-container {
+.input-container {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+}
+
+.input-container > input {
+    flex-grow: 1;
+    margin-right: 20px;
+    padding: 5px 15px;
+    font-size: 1rem;
+    color: inherit;
+    border: 3px solid var(--fg);
+    border-radius: 50px;
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.input-container > input:focus-visible {
+    outline: none;
+    border-color: var(--yellow-dark);
 }
 
 #statistics-container {
@@ -614,4 +639,92 @@ button.history-button:not(:disabled):focus-visible {
 
 #data-container > * + * {
     margin-top: 50px;
+}
+
+/* modal */
+#modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    padding: 30px 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+}
+
+#modal *::selection {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+body.modal {
+    overflow: hidden;
+}
+
+body.modal > #modal {
+    display: block;
+}
+
+#modal > div {
+    --fg: black;
+    --bg: white;
+
+    position: relative;
+    width: 90vw;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 30px;
+    color: var(--fg);
+    text-shadow: none;
+    border-radius: 25px;
+    background-color: var(--bg);
+}
+
+#modal ol {
+    margin: 0;
+    padding-left: 1em;
+}
+
+#modal ol > li {
+    padding-left: 5px;
+    line-height: 1.5;
+}
+
+#modal ol + h4 {
+    margin-top: 1.5em;
+}
+
+#modal button.close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 1em;
+    height: 1em;
+    font-size: 2rem;
+    line-height: 1;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.pretty-choices {
+    display: flex;
+    gap: 0 15px;
+}
+
+.pretty-choices input[type='radio'] {
+    display: none;
+}
+
+.pretty-choices input[type='radio'] + span {
+    display: inline-block;
+    padding: 5px 15px;
+    border: 2px solid var(--fg);
+    border-radius: 25px;
+    cursor: pointer;
+}
+
+.pretty-choices input[type='radio']:checked + span {
+    background: var(--yellow);
 }
