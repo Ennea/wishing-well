@@ -34,6 +34,12 @@ document.addEventListener('alpine:init', () => {
             type: false,
             bannerType: false
         },
+        // filters consist of a key:value pair for every value a given
+        // column can be filtered for. a value of true means that the
+        // filter for that column value is enabled, aka being displayed
+        // inside the table. the special __formatter key is for transforming
+        // the name of the key into a proper value that the real data can
+        // be compared against
         columnFilters: {
             rarity: {
                 __formatter: (key) => parseInt(key.substring(1)),
@@ -46,7 +52,7 @@ document.addEventListener('alpine:init', () => {
                 Weapon: true
             },
             bannerType: {
-                __formatter: (key) => key.substring(1)
+                __formatter: (key) => parseInt(key.substring(1))
             }
         },
 
@@ -168,7 +174,9 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
 
-                this.selectUID(Object.keys(this.uidData)[0]);
+                if (Object.keys(this.uidData).length > 0) {
+                    this.selectUID(Object.keys(this.uidData)[0]);
+                }
                 this.dataLoaded = true;
             });
         },

@@ -67,7 +67,7 @@ class Client:
         if end_id is not None:
             params['end_id'] = end_id
 
-        latest_wish = None
+        latest_wish_id = None
         while (result := self._request('getGachaLog', params)) and len(result['list']) > 0:
             end_id = None
             for wish in result['list']:
@@ -75,11 +75,11 @@ class Client:
                 # this is the earliest point we can do this, because
                 # only when we start fetching wish history from
                 # mihoyo's API will we get the UID for our auth token
-                if latest_wish is None:
-                    latest_wish = self._database.get_latest_wish(wish['uid'], banner_type)
+                if latest_wish_id is None:
+                    latest_wish_id = self._database.get_latest_wish_id(wish['uid'], banner_type)
 
                 # return when we reach the latest wish we already have in our history
-                if latest_wish is not None and latest_wish['id'] == int(wish['id']):
+                if latest_wish_id is not None and latest_wish_id == int(wish['id']):
                     return
 
                 yield wish
@@ -94,36 +94,30 @@ class Client:
 
     def fetch_and_store_banner_types(self):
         logging.info('Fetching banner types')
-        banner_types = {}
         result = self._request('getConfigList')
-        for banner_type in result['gacha_type_list']:
-            banner_types[banner_type['key']] = banner_type['name']
-        self._database.store_banner_types(banner_types)
+        self._database.store_banner_types(result['gacha_type_list'])
 
     def fetch_and_store_wish_history(self):
         logging.info('Fetching wish history')
         new_wishes_count = 0
-        for banner_type in self._database.get_banner_types().keys():
+        for banner_type in self._database.get_banner_types():
             logging.info('Fetching wish history for banner type %s', banner_type)
-            uid = None
             wishes = []
-            wish_history = self._fetch_wish_history(banner_type)
-            for wish in wish_history:
-                if uid is None:
-                    uid = wish['uid']
-
+            for wish in self._fetch_wish_history(banner_type):
                 wishes.append({
                     'id': int(wish['id']),  # convert to int for proper sorting
-                    'time': wish['time'],
+                    'uid': int(wish['uid']),
+                    'banner_type': banner_type,
                     'type': ItemType.CHARACTER if wish['item_type'] == 'Character' else ItemType.WEAPON,
                     'rarity': int(wish['rank_type']),
-                    'name': wish['name'],
+                    'time': wish['time'],
+                    'name': wish['name']
                 })
 
-            logging.info('Got %d wishes', len(wishes))
+            logging.info('Got %d wishes', len(wishes))  # TODO: log how many wishes we actually _stored_ (after implementing fetching missing wishes and de-duplication)
             new_wishes_count += len(wishes)
             wishes.sort(key=lambda wish: wish['id'])
-            self._database.store_wish_history(uid, banner_type, wishes)
+            self._database.store_wish_history(wishes)
 
         return new_wishes_count
 
@@ -133,11 +127,8 @@ class Client:
     def get_uids(self):
         return self._database.get_uids()
 
-    def get_banner_types_for_uid(self, uid):
-        return self._database.get_banner_types_for_uid(uid)
-
-    def get_wish_history(self, uid, banner_type):
-        return self._database.get_wish_history(uid, banner_type)
+    def get_wish_history(self, uid):
+        return self._database.get_wish_history(uid)
 
     @staticmethod
     def extract_region_and_auth_token(url):

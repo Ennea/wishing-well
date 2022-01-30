@@ -74,8 +74,9 @@ class Server:
 
     # calculate stats and pity. also returns pity the
     # given wish/reward was obtained at, if applicable
-    def _calculate_stats_and_pity(self, wish, banner_type, stats, pity, low_pity):
+    def _calculate_stats_and_pity(self, wish, stats, pity, low_pity):
         current_pity = None
+        banner_type = wish['banner_type']
 
         # 5 star
         if wish['rarity'] == 5:
@@ -151,18 +152,18 @@ class Server:
             low_pity = data['lowPity']
             wish_history = data['wishHistory']
 
-            for banner_type in self._client.get_banner_types_for_uid(uid):
-                for wish in self._client.get_wish_history(uid, banner_type):
-                    current_pity = self._calculate_stats_and_pity(wish, banner_type, stats, pity, low_pity)
+            for wish in self._client.get_wish_history(uid):
+                current_pity = self._calculate_stats_and_pity(wish, stats, pity, low_pity)
 
-                    # insert wish copy into frontend-ready history
-                    wish_copy = wish.copy()
-                    wish_copy['type'] = 'Character' if wish_copy['type'] is ItemType.CHARACTER else 'Weapon'
-                    wish_copy['bannerType'] = banner_type
-                    wish_copy['bannerTypeName'] = banner_types[banner_type]
-                    wish_copy['rarityText'] = '★' * wish_copy['rarity']
-                    wish_copy['pity'] = current_pity
-                    wish_history.append(wish_copy)
+                # insert wish copy into frontend-ready history
+                # wish_copy = wish.copy()
+                wish['type'] = 'Character' if wish['type'] is ItemType.CHARACTER else 'Weapon'
+                wish['bannerType'] = wish['banner_type']
+                wish['bannerTypeName'] = banner_types[wish['banner_type']]
+                wish['rarityText'] = '★' * wish['rarity']
+                wish['pity'] = current_pity
+                del wish['banner_type']
+                wish_history.append(wish)
 
             # calculate average pity
             for _, category in stats.items():
