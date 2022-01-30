@@ -2,7 +2,7 @@
 !define MUI_ICON "icon.ico"
 
 Name "Wishing Well"
-OutFile "wishing-well-1.0.2.exe"
+OutFile "wishing-well-1.1.exe"
 Unicode True
 RequestExecutionLevel admin
 InstallDir "$PROGRAMFILES\Wishing Well"
@@ -45,12 +45,14 @@ Section "Wishing Well"
   File "wishing-well.dist\vcruntime140.dll"
   File "wishing-well.dist\tcl86t.dll"
   File "wishing-well.dist\tk86t.dll"
+  File "wishing-well.dist\sqlite3.dll"
   File "wishing-well.dist\_bz2.pyd"
   File "wishing-well.dist\_hashlib.pyd"
   File "wishing-well.dist\_lzma.pyd"
   File "wishing-well.dist\_socket.pyd"
   File "wishing-well.dist\_ssl.pyd"
   File "wishing-well.dist\_tkinter.pyd"
+  File "wishing-well.dist\_sqlite3.pyd"
   File "wishing-well.dist\select.pyd"
   File "wishing-well.dist\unicodedata.pyd"
   
