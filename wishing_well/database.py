@@ -151,7 +151,7 @@ class Database:
         logging.info('Storing banner types')
         with self._get_database_connection() as db:
             db.cursor.executemany('''
-                INSERT INTO banner_types (id, name) VALUES (:key, :name)
+                INSERT OR IGNORE INTO banner_types (id, name) VALUES (:key, :name)
             ''', banner_types)
             db.commit()
 
@@ -188,10 +188,7 @@ class Database:
     def get_latest_wish_id(self, uid, banner_type):
         with self._get_database_connection() as db:
             try:
-                id_ = db.cursor.execute('''
-                    SELECT id FROM wish_history WHERE uid = ? AND banner_type = ?
-                    ORDER BY time DESC LIMIT 1
-                ''', (uid, banner_type)).fetchall()[0][0]
+                id_ = db.cursor.execute('SELECT MAX(id) FROM wish_history WHERE uid = ? AND banner_type = ?', (uid, banner_type)).fetchone()[0]
             except IndexError:
                 id_ = None
 
