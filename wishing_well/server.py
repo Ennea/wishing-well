@@ -174,8 +174,8 @@ class Server:
                     )
 
             # transform pity into a list
-            if '100' in pity:
-                del pity['100']  # remove novice wishes
+            if 100 in pity:
+                del pity[100]  # remove novice wishes
             pity = [ banner for _, banner in pity.items() ]
 
             # sort and clamp low pity
