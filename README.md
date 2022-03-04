@@ -69,4 +69,4 @@ Wishing Well is written in Python and should be able to run on all major desktop
 - [Nuitka](https://github.com/Nuitka/Nuitka) - [License](3rd-party-licenses/LICENSE_Nuitka)
 
 ---
-Wishing Well is not affiliated with miHoYo. Genshin Impact is a trademark of miHoYo.
+Wishing Well is not affiliated with HoYoverse. Genshin Impact is a trademark of HoYoverse.
