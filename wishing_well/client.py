@@ -14,7 +14,7 @@ from .util import get_log_path
 
 
 class Client:
-    API_BASE_URL = 'https://hk4e-api-os.mihoyo.com/event/gacha_info/api/'
+    API_BASE_URL = 'https://hk4e-api-os.hoyoverse.com/event/gacha_info/api/'
 
     def __init__(self):
         self._region = None
@@ -155,7 +155,7 @@ class Client:
             raise LogNotFoundError('Genshin Impact is not installed or has not been started yet.')
 
         url = None
-        regex = re.compile('^OnGetWebViewPageFinish:(https://webstatic-sea.mihoyo.com/hk4e/event/.+)$')
+        regex = re.compile('^OnGetWebViewPageFinish:(https://webstatic-sea.hoyoverse.com/genshin/event/.+)$')
         with path.open('r') as fp:
             for line in fp:
                 match = regex.search(line)
