@@ -254,57 +254,21 @@
             <button type="button" class="close" @click="closeModal()">&times;</button>
             <h3>Update wish history</h3>
 
-            <p>Select the platform you play Genshin Impact on.</p>
-            <div class="pretty-choices">
-                <div>
-                    <label>
-                        <input type="radio" name="platform" value="pc" x-model="selectedPlatform">
-                        <span>PC</span>
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        <input type="radio" name="platform" value="android" x-model="selectedPlatform">
-                        <span>Android</span>
-                    </label>
+            <div>
+                <p>To update your wish history, click the button below. This process requires you to have opened the in-game wish history the last time you've played Genshin Impact. If you have not done so, or you are not sure, you can start the game and open the in-game wish history now.</p>
+                <div class="center">
+                    <button type="button" class="button" :disabled="requestInProgress" @click="updateWishes(false)">Update wish history</button>
                 </div>
             </div>
 
-            <template x-if="selectedPlatform == 'pc'">
-                <div>
-                    <p>To update your wish history, click the button below. This process requires you to have opened the in-game wish history the last time you've played Genshin Impact. If you have not done so, or you are not sure, you can start the game and open the in-game wish history now.</p>
-                    <div class="center">
-                        <button type="button" class="button" :disabled="requestInProgress" @click="updateWishes(false)">Update wish history</button>
-                    </div>
+            <div id="message-output-container">
+                <div id="message-output" x-text="backendMessage" x-show="!requestInProgress" :class="backendStatus >= 400 ? 'error' : ''"></div>
+                <div id="spinner" x-show="requestInProgress">
+                    <svg viewBox="0 0 10 10">
+                        <path d="M5,0C2.239,0 0,2.239 0,5C0,7.76 2.24,10 5,10C7.761,10 10,7.761 10,5L8,5C8,6.657 6.657,8 5,8C3.344,8 2,6.656 2,5C2,3.343 3.343,2 5,2L5,0Z" />
+                    </svg>
                 </div>
-            </template>
-
-            <template x-if="selectedPlatform == 'android'">
-                <div>
-                    <p>To get your wish history URL on Android, follow these steps:</p>
-                    <ol>
-                        <li>Open the wish history inside the game.</li>
-                        <li>Once the page has loaded, disable your Wi-Fi and mobile data, then refresh the page.</li>
-                        <li>Copy the URL from the resulting error message.</li>
-                    </ol>
-                    <p>Once you've copied the URL, paste it below:</p>
-                    <form class="input-container" @submit="updateWishes(true, $event)">
-                        <input type="text" placeholder="Wish history URL" x-model="wishHistoryURL">
-                        <button type="submit" class="button" :disabled="requestInProgress || wishHistoryURL.length == 0">Update wish history</button>
-                    </form>
-                </div>
-            </template>
-
-            <template x-if="selectedPlatform != null">
-                <div id="message-output-container">
-                    <div id="message-output" x-text="backendMessage" x-show="!requestInProgress" :class="backendStatus >= 400 ? 'error' : ''"></div>
-                    <div id="spinner" x-show="requestInProgress">
-                        <svg viewBox="0 0 10 10">
-                            <path d="M5,0C2.239,0 0,2.239 0,5C0,7.76 2.24,10 5,10C7.761,10 10,7.761 10,5L8,5C8,6.657 6.657,8 5,8C3.344,8 2,6.656 2,5C2,3.343 3.343,2 5,2L5,0Z" />
-                        </svg>
-                    </div>
-                </div>
-            </template>
+            </div>
         </div>
     </aside>
 

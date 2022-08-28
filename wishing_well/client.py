@@ -10,7 +10,7 @@ from urllib.parse import urlparse, urlencode, parse_qs
 from .enums import ItemType
 from .exceptions import AuthTokenExtractionError, LogNotFoundError, MissingAuthTokenError, EndpointError, RequestError
 from .database import Database
-from .util import get_log_path
+from .util import get_cache_path
 
 
 class Client:
@@ -150,18 +150,18 @@ class Client:
 
     @staticmethod
     def extract_region_and_auth_token_from_file():
-        path = get_log_path()
-        if path is None:
+        path = get_cache_path()
+        if path is None or not path.exists():
             raise LogNotFoundError('Genshin Impact is not installed or has not been started yet.')
 
+        with path.open('rb') as fp:
+            cache_file = fp.read()
+
         url = None
-        regex = re.compile('^OnGetWebViewPageFinish:(https://webstatic-sea.hoyoverse.com/genshin/event/.+)$')
-        with path.open('r') as fp:
-            for line in fp:
-                match = regex.search(line)
-                if match is not None:
-                    url = match.group(1)
-                    break
+        regex = re.compile(b'(https://webstatic-sea.hoyoverse.com/genshin/event/.+)\0')
+        matches = regex.findall(cache_file)
+        if len(matches) > 0:
+            url = matches[-1].decode('utf-8')
 
         if url is None:
             raise AuthTokenExtractionError('Could not find authentication token in the log file. Open the wish history in the game, then try again.')

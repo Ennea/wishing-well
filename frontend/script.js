@@ -1,6 +1,6 @@
 document.addEventListener('alpine:init', () => {
     Alpine.data('app', () => ({
-        VERSION: '1.2',
+        VERSION: '1.3',
 
         // raw data from the backend
         bannerTypes: {},
@@ -20,7 +20,6 @@ document.addEventListener('alpine:init', () => {
 
         uidData: {},
         selectedUID: null,
-        selectedPlatform: null,
         bannerTypesList: [],
         wishHistoryPageSize: 10,
         wishHistoryLastPage: 0,
@@ -181,16 +180,7 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
-        updateWishes(withURL, event) {
-            if (event) {
-                event.preventDefault();
-            }
-
-            const body = {};
-            if (withURL) {
-                body.url = this.wishHistoryURL;
-            }
-
+        updateWishes() {
             // reset message and status, show loading animation
             this.backendStatus = 0;
             this.backendMessage = '';
@@ -201,7 +191,7 @@ document.addEventListener('alpine:init', () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(body)
+                body: '{}'
             }).then((response) => {
                 return new Promise((resolve, reject) => {
                     response.json().then((json) => {

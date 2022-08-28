@@ -4,29 +4,18 @@ import socket
 import sys
 import tkinter
 import webbrowser
+import winreg
 from pathlib import Path
 from tkinter import ttk
 from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
 
-from .exceptions import LogNotFoundError
-
 
 def get_data_path():
     if sys.platform == 'win32':
         path = Path(os.environ['APPDATA']) / 'wishing-well'
-    elif sys.platform == 'linux':
-        if 'XDG_DATA_HOME' in os.environ:
-            path = Path(os.environ['XDG_DATA_HOME']) / 'wishing-well'
-        else:
-            path = Path('~/.local/share/wishing-well').expanduser()
-    elif sys.platform == 'darwin':
-        if 'XDG_DATA_HOME' in os.environ:
-            path = Path(os.environ['XDG_DATA_HOME']) / 'wishing-well'
-        else:
-            path = Path('~/Library/Application Support/wishing-well').expanduser()
     else:
-        show_error('Wishing Well is only designed to run on Windows or Linux based systems.')
+        show_error('Wishing Well only supports Windows.')
 
     # create dir if it does not yet exist
     if not path.exists():
@@ -38,15 +27,15 @@ def get_data_path():
 
     return path
 
-def get_log_path():
-    if sys.platform != 'win32':
-        raise LogNotFoundError('Cannot find the log file on non-Windows systems.')
-
-    path = Path(os.environ['USERPROFILE']) / 'AppData/LocalLow/miHoYo/Genshin Impact/output_log.txt'
-    if not path.exists():
+def get_cache_path():
+    try:
+        handle = winreg.CreateKeyEx(winreg.HKEY_LOCAL_MACHINE, 'Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Genshin Impact',
+                                    access=winreg.KEY_WOW64_64KEY | winreg.KEY_READ)
+        path = winreg.QueryValueEx(handle, 'InstallPath')[0]
+        handle.Close()
+        return Path(path) / 'Genshin Impact game/GenshinImpact_Data/webCaches/Cache/Cache_Data/data_2'
+    except (OSError, FileNotFoundError):
         return None
-
-    return path
 
 def set_up_logging():
     log_level = logging.DEBUG if len(sys.argv) > 1 and sys.argv[1] == '--debug' else logging.INFO
