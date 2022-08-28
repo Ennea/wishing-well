@@ -1,6 +1,7 @@
 import logging
 import os
 import socket
+import subprocess
 import sys
 import tkinter
 import webbrowser
@@ -33,7 +34,18 @@ def get_cache_path():
                                     access=winreg.KEY_WOW64_64KEY | winreg.KEY_READ)
         path = winreg.QueryValueEx(handle, 'InstallPath')[0]
         handle.Close()
-        return Path(path) / 'Genshin Impact game/GenshinImpact_Data/webCaches/Cache/Cache_Data/data_2'
+
+        # create a copy of the file so we can also access it while genshin is running.
+        # python cannot do this without raising an error, and neither can the default
+        # windows copy command, so we instead delegate this task to powershell's Copy-Item
+        try:
+            path = Path(path) / 'Genshin Impact game/GenshinImpact_Data/webCaches/Cache/Cache_Data/data_2'
+            copy_path = get_data_path() / 'data_2'
+            subprocess.check_output(f'powershell.exe -Command "Copy-Item \'{path}\' \'{copy_path}\'"', shell=True)
+        except (FileNotFoundError, subprocess.CalledProcessError):
+            return None
+
+        return copy_path
     except (OSError, FileNotFoundError):
         return None
 
