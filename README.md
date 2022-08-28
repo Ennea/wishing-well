@@ -44,23 +44,24 @@ The same way the game does! It just automates it all and then stores the history
 
 ### Why make another one of these?
 
-I wanted to create a tool for the backup and analyzation of your wish history that is not a website, but runs locally instead. That way, you don't need to share your authentication token with any third parties, and you have complete control over any data that is being generated and stored. Also, it was a lot of fun to make :)
+I wanted to create a tool for the backup and analysis of your wish history that is not a website, but runs locally instead. That way, you don't need to share your authentication token with any third parties, and you have complete control over any data that is being generated and stored. Also, it was a lot of fun to make :)
 
 ### Where are my wishes stored?
 
-On your computer! If you're on Windows, your wish history is stored in `%APPDATA\wishing-well`. On Linux and macOS, the history will be stored in `$XDG_DATA_HOME/wishing-well` if it's set, or in `~/.local/share/wishing-well` on Linux and `~/Library/Application Support/wishing-well` on macOS.
+On your computer! Your wish history is stored in `%APPDATA\wishing-well`.
 
 ### Can I use this with a Chinese account?
 
-Chinese accounts are not currently supported. If there's enough interest for this, I will add support for Chinese accounts as well.
+Chinese accounts are not currently supported. If there's enough interest for this, I can add support for Chinese accounts.
 
 ### Are platforms besides Windows supported?
 
-Wishing Well is written in Python and should be able to run on all major desktop operating systems. However, with the limitations introduced in Genshin Impact version 2.3, Wishing Well needs to run on the same PC you're playing Genshin Impact on. As such, running Wishing Well on Linux or macOS probably does not make much sense. If you still want to do it, all you need is Python (at least version 3.9). Just check out the repository and run `python3 wishing-well.py`. (Note: Tkinter is required for some error messages. Some Linux distributions do not bundle Tkinter with the rest of Python's standard library. For example, on Debian, the required package is called `python3-tk`.)
+Wishing Well is written in Python and could technically run on all major desktop operating systems. However, with the limitations introduced in Genshin Impact version 2.3 and 3.0, Wishing Well needs to run on the same PC you're playing Genshin Impact on. As such, running Wishing Well on Linux or macOS does not make much sense.
 
 ## Thank you
 
 - [genshin.py](https://github.com/thesadru/genshin.py) - For some details of the wish history endpoints
+- [paimon.moe](https://github.com/MadeBaruna/paimon-moe) - For the 3.0 method of retrieving the wish history URL
 
 ## Wishing Well uses
 
