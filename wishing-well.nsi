@@ -2,7 +2,7 @@
 !define MUI_ICON "icon.ico"
 
 Name "Wishing Well"
-OutFile "wishing-well-1.3.exe"
+OutFile "wishing-well-1.3.1.exe"
 Unicode True
 RequestExecutionLevel admin
 InstallDir "$PROGRAMFILES\Wishing Well"

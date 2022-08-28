@@ -158,7 +158,7 @@ class Client:
             cache_file = fp.read()
 
         url = None
-        regex = re.compile(b'(https://webstatic-sea.hoyoverse.com/genshin/event/.+)\0')
+        regex = re.compile(b'(https://webstatic-sea.hoyoverse.com/genshin/event/.+?)\0')
         matches = regex.findall(cache_file)
         if len(matches) > 0:
             url = matches[-1].decode('utf-8')
