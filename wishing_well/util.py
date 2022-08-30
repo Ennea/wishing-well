@@ -6,6 +6,7 @@ import sys
 import tkinter
 import webbrowser
 import winreg
+import psutil
 from pathlib import Path
 from tkinter import ttk
 from urllib.request import urlopen
@@ -43,7 +44,16 @@ def get_cache_path():
             copy_path = get_data_path() / 'data_2'
             subprocess.check_output(f'powershell.exe -Command "Copy-Item \'{path}\' \'{copy_path}\'"', shell=True)
         except (FileNotFoundError, subprocess.CalledProcessError):
-            return None
+
+            # if that fails, try getting the install path by looking for a running instance of Genshin.
+            try:
+                for p in psutil.process_iter():
+                    if p.name() == "GenshinImpact.exe":
+                        path = p.exe().replace("GenshinImpact.exe","GenshinImpact_Data/webCaches/Cache/Cache_Data/data_2")
+                        copy_path = get_data_path() / 'data_2'
+                        subprocess.check_output(f'powershell.exe -Command "Copy-Item \'{path}\' \'{copy_path}\'"', shell=True)
+            except:
+                return None
 
         return copy_path
     except (OSError, FileNotFoundError):
