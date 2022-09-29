@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import socket
 import subprocess
 import sys
@@ -29,25 +30,39 @@ def get_data_path():
     return path
 
 def get_cache_path():
-    try:
-        handle = winreg.CreateKeyEx(winreg.HKEY_LOCAL_MACHINE, 'Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Genshin Impact',
-                                    access=winreg.KEY_WOW64_64KEY | winreg.KEY_READ)
-        path = winreg.QueryValueEx(handle, 'InstallPath')[0]
-        handle.Close()
+    game_path = None
+    log_path = Path(os.environ['USERPROFILE']) / 'AppData/LocalLow/miHoYo/Genshin Impact/output_log.txt'
 
-        # create a copy of the file so we can also access it while genshin is running.
-        # python cannot do this without raising an error, and neither can the default
-        # windows copy command, so we instead delegate this task to powershell's Copy-Item
-        try:
-            path = Path(path) / 'Genshin Impact game/GenshinImpact_Data/webCaches/Cache/Cache_Data/data_2'
-            copy_path = get_data_path() / 'data_2'
-            subprocess.check_output(f'powershell.exe -Command "Copy-Item \'{path}\' \'{copy_path}\'"', shell=True)
-        except (FileNotFoundError, subprocess.CalledProcessError):
+    if not log_path.exists():
+        return None
+
+    regex = re.compile('^Warmup file (.+)/GenshinImpact_Data')
+    with log_path.open('r') as fp:
+        for line in fp:
+            match = regex.search(line)
+            if match is not None:
+                game_path = match.group(1)
+                break
+
+    if game_path is None:
+        return None
+
+    # create a copy of the file so we can also access it while genshin is running.
+    # python cannot do this without raising an error, and neither can the default
+    # windows copy command, so we instead delegate this task to powershell's Copy-Item
+    try:
+        path = Path(game_path) / 'GenshinImpact_Data/webCaches/Cache/Cache_Data/data_2'
+        logging.debug('Cache path is: ' + str(path))
+        if not path.exists():
             return None
 
-        return copy_path
-    except (OSError, FileNotFoundError):
+        copy_path = get_data_path() / 'data_2'
+        subprocess.check_output(f'powershell.exe -Command "Copy-Item \'{path}\' \'{copy_path}\'"', shell=True)
+    except (FileNotFoundError, subprocess.CalledProcessError) as e:
+        logging.error('Could not create copy of cache file')
         return None
+
+    return copy_path
 
 def set_up_logging():
     log_level = logging.DEBUG if len(sys.argv) > 1 and sys.argv[1] == '--debug' else logging.INFO

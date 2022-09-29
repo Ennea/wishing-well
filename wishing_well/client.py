@@ -152,7 +152,7 @@ class Client:
     def extract_region_and_auth_token_from_file():
         path = get_cache_path()
         if path is None or not path.exists():
-            raise LogNotFoundError('Genshin Impact is not installed or has not been started yet.')
+            raise LogNotFoundError('Genshin Impact is not installed or has not been started yet, or the cache file could not be copied.')
 
         with path.open('rb') as fp:
             cache_file = fp.read()
