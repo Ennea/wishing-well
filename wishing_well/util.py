@@ -34,9 +34,10 @@ def get_cache_path():
     log_path = Path(os.environ['USERPROFILE']) / 'AppData/LocalLow/miHoYo/Genshin Impact/output_log.txt'
 
     if not log_path.exists():
+        logging.debug('output_log.txt not found')
         return None
 
-    regex = re.compile('^Warmup file (.+)/GenshinImpact_Data')
+    regex = re.compile('Warmup file (.+)/GenshinImpact_Data')
     with log_path.open('r') as fp:
         for line in fp:
             match = regex.search(line)
@@ -45,6 +46,7 @@ def get_cache_path():
                 break
 
     if game_path is None:
+        logging.debug('game path not found in output_log')
         return None
 
     # create a copy of the file so we can also access it while genshin is running.
