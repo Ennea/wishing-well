@@ -56,7 +56,7 @@ Chinese accounts are not currently supported. If there's enough interest for thi
 
 ### Are platforms besides Windows supported?
 
-Wishing Well is written in Python and could technically run on all major desktop operating systems. However, with the limitations introduced in Genshin Impact version 2.3 and 3.0, Wishing Well needs to run on the same PC you're playing Genshin Impact on. As such, running Wishing Well on Linux or macOS does not make much sense.
+Linux is supported _again_. This requires acess to the game files, however, for example by dual booting Windows and mounting your Windows drive when running Linux. You can then give Wishing Well the path to the game via an environment variable. For example: `GAME_PATH="/mnt/windows/Users/Ennea/Games/Genshin Impact/Genshin Impact game" python wishing-well.py`
 
 ## Thank you
 

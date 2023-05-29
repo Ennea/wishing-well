@@ -1,23 +1,38 @@
 import logging
 import os
 import re
+import shutil
 import socket
 import subprocess
 import sys
 import tkinter
 import webbrowser
-import winreg
 from pathlib import Path
 from tkinter import ttk
 from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
 
+try:
+    import winreg
+except ModuleNotFoundError:
+    winreg = None
+
 
 def get_data_path():
     if sys.platform == 'win32':
         path = Path(os.environ['APPDATA']) / 'wishing-well'
+    elif sys.platform == 'linux':
+        if 'XDG_DATA_HOME' in os.environ:
+            path = Path(os.environ['XDG_DATA_HOME']) / 'wishing-well'
+        else:
+            path = Path('~/.local/share/wishing-well').expanduser()
+    elif sys.platform == 'darwin':
+        if 'XDG_DATA_HOME' in os.environ:
+            path = Path(os.environ['XDG_DATA_HOME']) / 'wishing-well'
+        else:
+            path = Path('~/Library/Application Support/wishing-well').expanduser()
     else:
-        show_error('Wishing Well only supports Windows.')
+        show_error('Wishing Well is only designed to run on Windows or Linux based systems.')
 
     # create dir if it does not yet exist
     if not path.exists():
@@ -31,19 +46,26 @@ def get_data_path():
 
 def get_cache_path():
     game_path = None
-    log_path = Path(os.environ['USERPROFILE']) / 'AppData/LocalLow/miHoYo/Genshin Impact/output_log.txt'
+    try:
+        game_path = Path(os.environ['GAME_PATH'])
+    except KeyError:
+        try:
+            log_path = Path(os.environ['USERPROFILE']) / 'AppData/LocalLow/miHoYo/Genshin Impact/output_log.txt'
+        except KeyError:
+            logging.debug('USERPROFILE environment variable does not exist')
+            return None
 
-    if not log_path.exists():
-        logging.debug('output_log.txt not found')
-        return None
+        if not log_path.exists():
+            logging.debug('output_log.txt not found')
+            return None
 
-    regex = re.compile('Warmup file (.+)/GenshinImpact_Data')
-    with log_path.open('r') as fp:
-        for line in fp:
-            match = regex.search(line)
-            if match is not None:
-                game_path = match.group(1)
-                break
+        regex = re.compile('Warmup file (.+)/GenshinImpact_Data')
+        with log_path.open('r') as fp:
+            for line in fp:
+                match = regex.search(line)
+                if match is not None:
+                    game_path = match.group(1)
+                    break
 
     if game_path is None:
         logging.debug('game path not found in output_log')
@@ -54,13 +76,17 @@ def get_cache_path():
     # windows copy command, so we instead delegate this task to powershell's Copy-Item
     try:
         path = Path(game_path) / 'GenshinImpact_Data/webCaches/Cache/Cache_Data/data_2'
-        logging.debug('Cache path is: ' + str(path))
+        logging.debug('cache path is: ' + str(path))
         if not path.exists():
+            logging.debug('cache file does not exist')
             return None
 
         copy_path = get_data_path() / 'data_2'
-        subprocess.check_output(f'powershell.exe -Command "Copy-Item \'{path}\' \'{copy_path}\'"', shell=True)
-    except (FileNotFoundError, subprocess.CalledProcessError) as e:
+        if sys.platform == 'win32':
+            subprocess.check_output(f'powershell.exe -Command "Copy-Item \'{path}\' \'{copy_path}\'"', shell=True)
+        else:
+            shutil.copyfile(path, copy_path)
+    except (FileNotFoundError, subprocess.CalledProcessError, OSError):
         logging.error('Could not create copy of cache file')
         return None
 

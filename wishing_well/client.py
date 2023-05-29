@@ -77,7 +77,7 @@ class Client:
                 # mihoyo's API will we get the UID for our auth token
                 if latest_wish_id is None:
                     latest_wish_id = self._database.get_latest_wish_id(wish['uid'], banner_type)
-                    logging.debug('Last wish id for banner type %d is %d', banner_type, latest_wish_id)
+                    logging.debug('Last wish id for banner type %d is %d', banner_type, latest_wish_id or 0)
 
                 # return when we reach the latest wish we already have in our history
                 logging.debug('Current wish id is %s. (%s - %s)', wish['id'], wish['time'], wish['name'])
