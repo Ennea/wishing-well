@@ -9,7 +9,7 @@
 #     nuitka-project: --windows-company-name=-
 #     nuitka-project: --windows-product-name=Wishing Well
 #     nuitka-project: --windows-file-description=Wishing Well
-#     nuitka-project: --windows-product-version=1.3.4
+#     nuitka-project: --windows-product-version=1.4.0
 
 import logging
 import bottle
