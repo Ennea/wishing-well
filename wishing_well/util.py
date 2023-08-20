@@ -75,7 +75,7 @@ def get_cache_path():
     # python cannot do this without raising an error, and neither can the default
     # windows copy command, so we instead delegate this task to powershell's Copy-Item
     try:
-        path = Path(game_path) / 'GenshinImpact_Data/webCaches/2.13.0.1/Cache/Cache_Data/data_2'
+        path = Path(game_path) / 'GenshinImpact_Data/webCaches/2.15.0.0/Cache/Cache_Data/data_2'
         logging.debug('cache path is: ' + str(path))
         if not path.exists():
             logging.debug('cache file does not exist')
