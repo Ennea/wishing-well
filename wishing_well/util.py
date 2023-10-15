@@ -64,7 +64,7 @@ def get_cache_path():
             for line in fp:
                 match = regex.search(line)
                 if match is not None:
-                    game_path = match.group(1)
+                    game_path = Path(match.group(1))
                     break
 
     if game_path is None:
@@ -75,9 +75,10 @@ def get_cache_path():
     # python cannot do this without raising an error, and neither can the default
     # windows copy command, so we instead delegate this task to powershell's Copy-Item
     try:
-        path = Path(game_path) / 'GenshinImpact_Data/webCaches/2.13.0.1/Cache/Cache_Data/data_2'
+        cache_path = get_web_cache_path(game_path)
+        path = cache_path / 'Cache/Cache_Data/data_2' if cache_path else None
         logging.debug('cache path is: ' + str(path))
-        if not path.exists():
+        if not path or not path.exists():
             logging.debug('cache file does not exist')
             return None
 
@@ -91,6 +92,18 @@ def get_cache_path():
         return None
 
     return copy_path
+
+def get_web_cache_path(game_path):
+    web_caches = game_path / 'GenshinImpact_Data/webCaches'
+    versions = [
+        (parts, p)
+        for p in web_caches.iterdir()
+        if p.is_dir() and len(parts := p.name.split('.')) > 1
+    ]
+    if not versions:
+        return None
+    versions.sort()
+    return versions[-1][1]
 
 def set_up_logging():
     log_level = logging.DEBUG if len(sys.argv) > 1 and sys.argv[1] == '--debug' else logging.INFO
